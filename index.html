@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAR 魔法陣 - 5段階速度判定</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- AR.js -->
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head>
+<body>
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div id="instructions" class="instruction-text">
+            <h2>魔法陣召喚体験</h2>
+            <p>📱 マーカーにカメラを向けてください</p>
+            <p>✋ 画面を指でぐるぐる回そう！</p>
+        </div>
+        <div id="status" class="status-text"></div>
+        <div id="result" class="result-text" style="display: none;"></div>
+        <button id="replay-btn" style="display: none;">もう一度挑戦</button>
+    </div>
+
+    <!-- AR Scene -->
+    <a-scene
+        arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+        renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;"
+        background="transparent"
+        vr-mode-ui="enabled: false"
+        id="ar-scene">
+        
+        <!-- Assets -->
+        <a-assets>
+            <!-- 魔法陣モデル -->
+            <a-asset-item id="magic-circle" src="assets/models/magic-circle.glb"></a-asset-item>
+            <!-- 召喚オブジェクトモデル -->
+            <a-asset-item id="model-a" src="assets/models/model-a.glb"></a-asset-item>
+            <a-asset-item id="model-b" src="assets/models/model-b.glb"></a-asset-item>
+            <a-asset-item id="model-c" src="assets/models/model-c.glb"></a-asset-item>
+            <a-asset-item id="model-d" src="assets/models/model-d.glb"></a-asset-item>
+            <a-asset-item id="model-e" src="assets/models/model-e.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Camera -->
+        <a-camera gps-camera rotation-reader></a-camera>
+
+        <!-- AR Marker -->
+        <a-marker preset="hiro" id="hiro-marker">
+            <!-- 魔法陣（常に表示） -->
+            <a-entity
+                id="magic-circle-entity"
+                gltf-model="#magic-circle"
+                position="0 0 0"
+                rotation="-90 0 0"
+                scale="1 1 1"
+                animation__rotate="property: rotation; to: -90 360 0; loop: true; dur: 10000;">
+            </a-entity>
+            
+            <!-- 召喚オブジェクト（条件に応じて表示） -->
+            <a-entity id="summoned-object" position="0 0.5 0" visible="false"></a-entity>
+        </a-marker>
+    </a-scene>
+
+    <!-- JavaScript -->
+    <script src="js/touch-handler.js"></script>
+    <script src="js/ar-manager.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
