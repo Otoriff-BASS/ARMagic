@@ -85,20 +85,20 @@ class TouchHandler {
         let summonType = '';    // ユーザーに表示する精霊の名前
         
         if (duration < T1) {
-            modelToShow = 'model-a';    // 最速タッチ（0-200ms）：稲妻の精霊
-            summonType = '稲妻の精霊';
+            modelToShow = 'model-a';    // 最速タッチ（0-200ms）：オブジェクトA
+            summonType = 'オブジェクトA';
         } else if (duration < T2) {
-            modelToShow = 'model-b';    // 高速タッチ（200-500ms）：炎の精霊
-            summonType = '炎の精霊';
+            modelToShow = 'model-b';    // 高速タッチ（200-500ms）：オブジェクトB
+            summonType = 'オブジェクトB';
         } else if (duration < T3) {
-            modelToShow = 'model-c';    // 中速タッチ（500-1000ms）：水の精霊
-            summonType = '水の精霊';
+            modelToShow = 'model-c';    // 中速タッチ（500-1000ms）：オブジェクトC
+            summonType = 'オブジェクトC';
         } else if (duration < T4) {
-            modelToShow = 'model-d';    // 低速タッチ（1000-2000ms）：土の精霊
-            summonType = '土の精霊';
+            modelToShow = 'model-d';    // 低速タッチ（1000-2000ms）：オブジェクトD
+            summonType = 'オブジェクトD';
         } else {
-            modelToShow = 'model-e';    // 最遅タッチ（2000ms+）：古の守護者
-            summonType = '古の守護者';
+            modelToShow = 'model-e';    // 最遅タッチ（2000ms+）：オブジェクトE
+            summonType = 'オブジェクトE';
         }
         
         // ARマネージャーに召喚を指示（選択された3Dモデルを表示）
@@ -115,7 +115,7 @@ class TouchHandler {
         const replayBtn = document.getElementById('replay-btn');    // リプレイボタンのDOM要素を取得
         
         resultElement.innerHTML = `
-            <h3>🎉 召喚成功！</h3>
+            <h3>召喚成功！</h3>
             <p><strong>${summonType}</strong> が現れました！</p>
             <p>タッチ時間: ${duration}ms</p>
         `;
@@ -179,18 +179,18 @@ class TouchHandler {
             // マーカー認識時の指示テキスト（操作可能状態を示す）
             const instructionsElement = document.getElementById('instructions');  // 指示テキスト要素を取得
             instructionsElement.innerHTML = `
-                <h2>魔法陣召喚体験</h2>
-                <p>✨ マーカーを認識しました！</p>
-                <p>✋ 画面を指でぐるぐる回そう！</p>
+                <h2>AR召喚</h2>
+                <p>マーカーを認識しました！</p>
+                <p>画面を指でタッチしよう！</p>
             `;
             instructionsElement.classList.add('pulse');  // 点滅アニメーションを追加（注意喚起のため）
         } else {
             // マーカー未認識時の指示テキスト（カメラをマーカーに向けるよう促す）
             const instructionsElement = document.getElementById('instructions');  // 指示テキスト要素を取得
             instructionsElement.innerHTML = `
-                <h2>魔法陣召喚体験</h2>
-                <p>📱 マーカーにカメラを向けてください</p>
-                <p>✋ 画面を指でぐるぐる回そう！</p>
+                <h2>AR召喚</h2>
+                <p>マーカーにカメラを向けてください</p>
+                <p>画面を指でタッチしよう！</p>
             `;
             instructionsElement.classList.remove('pulse');  // 点滅アニメーションを削除
         }
