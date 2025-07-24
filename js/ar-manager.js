@@ -4,6 +4,7 @@ class ARManager {
     constructor() {
         this.marker = null;                // Hiroマーカーのa-marker要素（ARマーカーの検知と追跡を管理）
         this.summonedObject = null;        // 召喚されるオブジェクトのa-entity要素（タッチ操作で表示される精霊の3Dモデル）
+        this.magicCircle = null;           // 魔法陣要素への参照（Planeオブジェクトのテクスチャ表示制御を担当）
         this.isMarkerVisible = false;      // マーカーが現在認識されているかのフラグ（true=認識中、false=未認識）
         
         this.initAR();
@@ -14,6 +15,8 @@ class ARManager {
         this.marker = document.getElementById('hiro-marker');
         // 召喚オブジェクト要素を取得（精霊表示用のエンティティを参照）
         this.summonedObject = document.getElementById('summoned-object');
+        // 魔法陣要素を取得（Planeテクスチャ表示制御用のエンティティを参照）
+        this.magicCircle = document.getElementById('magic-circle-entity');
         
         if (this.marker) {
             // マーカーの表示/非表示イベント（AR.jsから自動的に発火されるイベントをリッスン）
@@ -21,12 +24,15 @@ class ARManager {
             this.marker.addEventListener('markerLost', this.onMarkerLost.bind(this));      // マーカー喪失時のイベントハンドラー
         }
         
-        console.log('AR Manager initialized');
+        console.log('AR Manager initialized with Hiro marker and magic circle texture');
     }
     
     onMarkerFound() {
         console.log('Marker found!');
         this.isMarkerVisible = true;  // マーカー認識状態フラグをtrueに設定
+        
+        // 魔法陣を表示・アニメーション開始
+        this.showMagicCircle();
         
         // TouchHandlerに通知（タッチ操作が有効になったことを伝える）
         if (window.touchHandler) {
@@ -38,6 +44,9 @@ class ARManager {
         console.log('Marker lost!');
         this.isMarkerVisible = false;  // マーカー認識状態フラグをfalseに設定
         
+        // 魔法陣を非表示
+        this.hideMagicCircle();
+        
         // TouchHandlerに通知（タッチ操作を無効にすることを伝える）
         if (window.touchHandler) {
             window.touchHandler.setMarkerVisible(false);
@@ -45,6 +54,20 @@ class ARManager {
         
         // 召喚オブジェクトを非表示（マーカーが見えなくなったら精霊も消去）
         this.hideSummonedObject();
+    }
+    
+    showMagicCircle() {
+        if (this.magicCircle) {
+            this.magicCircle.setAttribute('visible', 'true');
+            console.log('Magic circle appeared!');
+        }
+    }
+    
+    hideMagicCircle() {
+        if (this.magicCircle) {
+            this.magicCircle.setAttribute('visible', 'false');
+            console.log('Magic circle hidden');
+        }
     }
     
     showSummonedObject(modelId) {
@@ -101,7 +124,8 @@ class ARManager {
             hasScene: !!document.getElementById('ar-scene'), // ARシーンが存在するか
             hasMarker: !!this.marker,                       // マーカー要素が存在するか
             hasMagicCircle: !!document.getElementById('magic-circle-entity'), // 魔法陣要素が存在するか
-            hasSummonedObject: !!this.summonedObject         // 召喚オブジェクト要素が存在するか
+            hasSummonedObject: !!this.summonedObject,        // 召喚オブジェクト要素が存在するか
+            markerType: 'hiro'                               // マーカータイプを明記
         };
     }
 }

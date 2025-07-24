@@ -73,12 +73,44 @@ class ARMagicApp {
                 console.log('A-Frame loaded:', AFRAME.version);
                 clearInterval(checkInterval);
                 
-                // AR.jsの確認
-                if (window.THREEx && window.THREEx.ArToolkitSource) {
-                    console.log('AR.js loaded successfully');
-                } else {
-                    console.warn('AR.js may not be loaded properly');
+                // AR.jsの確認 - より包括的な検出
+                let arjsDetected = false;
+                let detectionMethod = '';
+                
+                // 方法1: A-Frameコンポーネント確認
+                if (AFRAME.components) {
+                    const arComponents = Object.keys(AFRAME.components).filter(k => 
+                        k.includes('ar') || k === 'arjs' || k === 'marker'
+                    );
+                    if (arComponents.length > 0) {
+                        arjsDetected = true;
+                        detectionMethod = `Component (${arComponents.length})`;
+                    }
                 }
+                
+                // 方法2: THREEx確認
+                if (!arjsDetected && window.THREEx && window.THREEx.ArToolkitSource) {
+                    arjsDetected = true;
+                    detectionMethod = 'THREEx';
+                }
+                
+                // 方法3: シーンのarjs属性確認
+                if (!arjsDetected) {
+                    const scene = document.getElementById('ar-scene');
+                    if (scene && scene.hasAttribute('arjs')) {
+                        arjsDetected = true;
+                        detectionMethod = 'Scene arjs attribute';
+                    }
+                }
+                
+                if (arjsDetected) {
+                    console.log(`AR.js loaded successfully via: ${detectionMethod}`);
+                } else {
+                    console.warn('AR.js may not be loaded properly, but proceeding...');
+                }
+                
+                // テクスチャ読み込み確認
+                this.checkTextureLoaded();
                 
                 return;
             }
@@ -89,6 +121,31 @@ class ARMagicApp {
                 clearInterval(checkInterval);
             }
         }, 100);
+    }
+    
+    checkTextureLoaded() {
+        const texture = document.getElementById('magic-circle-texture');
+        if (texture) {
+            texture.onload = () => {
+                console.log('✅ Magic circle texture loaded successfully');
+            };
+            texture.onerror = (error) => {
+                console.error('❌ Failed to load magic circle texture:', error);
+                this.handleError(new Error('Magic circle texture failed to load'));
+            };
+            
+            if (texture.complete) {
+                if (texture.naturalWidth > 0) {
+                    console.log('✅ Magic circle texture already loaded');
+                } else {
+                    console.error('❌ Magic circle texture failed to load (naturalWidth = 0)');
+                    this.handleError(new Error('Magic circle texture failed to load'));
+                }
+            }
+        } else {
+            console.error('❌ Magic circle texture element not found');
+            this.handleError(new Error('Magic circle texture element not found'));
+        }
     }
     
     checkSystemStatus() {
@@ -114,6 +171,10 @@ class ARMagicApp {
         // ARマネージャーの召喚オブジェクトを非表示（現在表示されている精霊を消去）
         if (this.arManager) {
             this.arManager.hideSummonedObject();
+            // 魔法陣も一度リセット（マーカーが認識されている場合は再表示）
+            if (this.arManager.isMarkerVisible) {
+                this.arManager.showMagicCircle();
+            }
         }
         
         console.log('App reset for replay');
@@ -157,12 +218,21 @@ window.debugAR = () => {
     
     if (app.arManager) {
         console.log('AR Scene Status:', app.arManager.getSceneStatus());  // ARシーンの詳細状態を出力
+        
+        // 魔法陣とマーカーの状態確認
+        console.log('Magic Circle Element:', document.getElementById('magic-circle-entity'));
+        console.log('Magic Circle Texture:', document.getElementById('magic-circle-texture'));
+        console.log('Marker Element:', document.getElementById('marker-1'));
     }
     
     // テスト用の召喚（マーカーが認識されている場合のみ実行）
     if (app.arManager && app.arManager.isMarkerVisible) {
         console.log('Testing summon...');
         app.arManager.showDebugObject();  // テスト用オブジェクトを表示
+        
+        // 魔法陣のテスト表示
+        console.log('Testing magic circle...');
+        app.arManager.showMagicCircle();
     } else {
         console.log('Marker not visible - cannot test summon');  // マーカーが認識されていない場合の警告
     }

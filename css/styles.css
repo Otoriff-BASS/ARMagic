@@ -11,7 +11,7 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: #000;
+    background: transparent; /* 黒背景から透明に変更 */
 }
 
 /* UI オーバーレイ */
@@ -27,18 +27,21 @@ body {
     flex-direction: column;
     justify-content: space-between;
     padding: 20px;
+    background: transparent; /* 明示的に透明背景を設定 */
 }
 
 /* 指示テキスト */
 .instruction-text {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7); /* 透明度を少し下げる */
     color: white;
-    padding: 20px;
+    padding: 15px; /* パディングを小さくする */
     border-radius: 10px;
     text-align: center;
-    backdrop-filter: blur(10px);
-    border: 2px solid #4a90e2;
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+    backdrop-filter: blur(5px); /* ブラー効果を軽減 */
+    border: 2px solid rgba(74, 144, 226, 0.8); /* ボーダーも少し透明に */
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.2); /* シャドウを軽減 */
+    max-width: 300px; /* 最大幅を制限 */
+    margin: 0 auto; /* 中央寄せ */
 }
 
 .instruction-text h2 {
@@ -56,24 +59,25 @@ body {
 
 /* ステータステキスト */
 .status-text {
-    background: rgba(255, 215, 0, 0.9);
+    background: rgba(255, 215, 0, 0.8); /* 透明度を少し下げる */
     color: #333;
-    padding: 15px;
+    padding: 12px; /* パディングを小さくする */
     border-radius: 8px;
     text-align: center;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px; /* フォントサイズを小さくする */
     align-self: center;
     display: none;
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    border: 2px solid rgba(255, 215, 0, 0.8); /* ボーダーも透明に */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* シャドウを軽減 */
+    max-width: 250px; /* 最大幅を制限 */
 }
 
 /* 結果テキスト */
 .result-text {
-    background: rgba(50, 205, 50, 0.9);
+    background: rgba(50, 205, 50, 0.8); /* 透明度を少し下げる */
     color: white;
-    padding: 20px;
+    padding: 15px; /* パディングを小さくする */
     border-radius: 10px;
     text-align: center;
     font-weight: bold;
