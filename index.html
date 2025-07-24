@@ -31,48 +31,82 @@
 
     <!-- AR Scene -->
     <a-scene
-        arjs
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         embedded
-        renderer="logarithmicDepthBuffer: true;"
-        background="transparent"
+        renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;"
         vr-mode-ui="enabled: false"
         style="width: 100vw; height: 100vh;"
-        id="ar-scene">
+        id="ar-scene"
+        device-orientation-permission-ui="enabled: false">
         
         <!-- Assets -->
         <a-assets>
-            <!-- 魔法陣テクスチャ - データURIで確実に読み込み -->
-            <img id="magic-circle-texture" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJtYWdpY0dyYWQiIGN4PSI1MCUiIGN5PSI1MCUiIHI9IjUwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI0ZGRDcwMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjYwJSIgc3RvcC1jb2xvcj0iI0ZGNDU0MDAiIHN0b3Atb3BhY2l0eT0iMC42Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIiBzdG9wLW9wYWNpdHk9IjAuMiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMjQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkQ3MDAiIHN0cm9rZS13aWR0aD0iNCIgb3BhY2l0eT0iMC44Ii8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGNDU0MDAiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iMC42Ii8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhBMkJFMiIgc3Ryb2tlLXdpZHRoPSIzIiBvcGFjaXR5PSIwLjciLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjE2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuNSIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRjQ1NDAwIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuNiIvPjwvc3ZnPg==" crossorigin="anonymous">
-            <!-- 召喚オブジェクトモデル -->
-            <a-asset-item id="model-a" src="assets/models/model-a.glb"></a-asset-item>
-            <a-asset-item id="model-b" src="assets/models/model-b.glb"></a-asset-item>
-            <a-asset-item id="model-c" src="assets/models/model-c.glb"></a-asset-item>
-            <a-asset-item id="model-d" src="assets/models/model-d.glb"></a-asset-item>
-            <a-asset-item id="model-e" src="assets/models/model-e.glb"></a-asset-item>
+            <!-- 魔法陣テクスチャ - PNG画像を使用 -->
+            <img id="magic-circle-texture" src="assets/textures/magic-circle-placeholder.png" crossorigin="anonymous">
+            <!-- 召喚オブジェクトモデル - より確実な読み込み設定 -->
+            <a-asset-item id="model-a" src="assets/models/model-a.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="model-b" src="assets/models/model-b.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="model-c" src="assets/models/model-c.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="model-d" src="assets/models/model-d.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="model-e" src="assets/models/model-e.glb" response-type="arraybuffer"></a-asset-item>
         </a-assets>
 
         <!-- Camera -->
         <a-entity camera></a-entity>
 
         <!-- AR Marker - Hiroマーカーに変更 -->
-        <a-marker preset="hiro" id="hiro-marker">
-            <!-- 魔法陣（Planeオブジェクト with テクスチャ） -->
+        <a-marker 
+            preset="hiro" 
+            id="hiro-marker"
+            raycaster="objects: .clickable"
+            cursor="fuse: false; rayOrigin: mouse;">
+            
+            <!-- 魔法陣（Planeオブジェクト - マーカーから浮かせて表示） -->
             <a-entity id="magic-circle-entity">
+                <!-- メインの魔法陣Plane -->
                 <a-plane 
                     id="magic-circle-plane"
                     src="#magic-circle-texture"
-                    width="2" 
-                    height="2"
-                    position="0 0.01 0" 
+                    width="2.4" 
+                    height="2.4"
+                    position="0 0.3 0" 
                     rotation="-90 0 0"
-                    material="transparent: true; alphaTest: 0.1"
-                    visible="true"
-                    animation__rotate="property: rotation; to: -90 360 0; loop: true; dur: 8000; easing: linear">
+                    material="transparent: true; alphaTest: 0.1; opacity: 0.9; side: double"
+                    animation__rotate="property: rotation; to: -90 360 0; loop: true; dur: 8000; easing: linear"
+                    animation__float="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 4000; easing: easeInOutSine">
                 </a-plane>
+                
+                <!-- 外側のリング（装飾） -->
+                <a-ring 
+                    color="#FFD700" 
+                    position="0 0.35 0" 
+                    radius-inner="1.5" 
+                    radius-outer="1.7" 
+                    rotation="-90 0 0"
+                    material="transparent: true; opacity: 0.6"
+                    animation__spin="property: rotation; to: -90 360 0; loop: true; dur: 12000; easing: linear">
+                </a-ring>
+                
+                <!-- 内側のリング（装飾） -->
+                <a-ring 
+                    color="#8A2BE2" 
+                    position="0 0.25 0" 
+                    radius-inner="0.8" 
+                    radius-outer="1.0" 
+                    rotation="-90 0 0"
+                    material="transparent: true; opacity: 0.7"
+                    animation__counter_spin="property: rotation; to: -90 -360 0; loop: true; dur: 10000; easing: linear">
+                </a-ring>
             </a-entity>
             
             <!-- 召喚オブジェクト（条件に応じて表示） -->
-            <a-entity id="summoned-object" position="0 0.5 0" visible="false"></a-entity>
+            <a-entity 
+                id="summoned-object" 
+                position="0 1 0" 
+                scale="1 1 1"
+                rotation="0 0 0"
+                visible="false">
+            </a-entity>
         </a-marker>
     </a-scene>
 
@@ -80,5 +114,124 @@
     <script src="js/touch-handler.js"></script>
     <script src="js/ar-manager.js"></script>
     <script src="js/app.js"></script>
+    
+    <!-- デバッグ用インラインスクリプト -->
+    <script>
+        // ページ読み込み完了後にデバッグ関数を確実に設定
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - setting up debug functions...');
+            
+            // 少し遅延させてARManager初期化を待つ
+            setTimeout(function() {
+                console.log('Setting up global debug functions (delayed)...');
+                
+                window.testDebugObject = function() {
+                    console.log('=== DEBUG OBJECT TEST ===');
+                    console.log('ARManager available:', !!window.arManager);
+                    
+                    if (window.arManager) {
+                        console.log('Marker visible:', window.arManager.isMarkerVisible);
+                        console.log('Calling showDebugObject...');
+                        window.arManager.showDebugObject();
+                    } else {
+                        console.error('ARManager not found!');
+                        console.log('Window keys:', Object.keys(window).filter(k => k.includes('ar') || k.includes('AR')));
+                    }
+                };
+                
+                window.testSummon = function(modelId = 'model-a') {
+                    console.log('=== SUMMON TEST ===');
+                    console.log('Model ID:', modelId);
+                    console.log('ARManager available:', !!window.arManager);
+                    
+                    if (window.arManager) {
+                        console.log('Marker visible:', window.arManager.isMarkerVisible);
+                        window.arManager.showSummonedObject(modelId);
+                    } else {
+                        console.error('ARManager not found!');
+                    }
+                };
+                
+                window.checkStatus = function() {
+                    console.log('=== STATUS CHECK ===');
+                    console.log('ARManager:', !!window.arManager);
+                    console.log('TouchHandler:', !!window.touchHandler);
+                    
+                    if (window.arManager) {
+                        console.log('AR Status:', window.arManager.getSceneStatus());
+                        
+                        const obj = document.getElementById('summoned-object');
+                        if (obj) {
+                            console.log('Summoned Object:', {
+                                exists: true,
+                                position: obj.getAttribute('position'),
+                                scale: obj.getAttribute('scale'),
+                                visible: obj.getAttribute('visible'),
+                                parent: obj.parentElement ? obj.parentElement.tagName : 'None'
+                            });
+                        } else {
+                            console.log('Summoned object not found');
+                        }
+                    }
+                };
+                
+                window.testFallback = function(modelId = 'model-a') {
+                    console.log('=== FALLBACK TEST ===');
+                    if (window.arManager) {
+                        console.log('Testing fallback for:', modelId);
+                        window.arManager.showModelFallback(modelId);
+                    } else {
+                        console.error('ARManager not found!');
+                    }
+                };
+                
+                window.testMagicCircle = function() {
+                    console.log('=== MAGIC CIRCLE TEST ===');
+                    if (window.arManager) {
+                        console.log('Showing magic circle...');
+                        window.arManager.showMagicCircle();
+                        
+                        // 追加の詳細チェック
+                        setTimeout(() => {
+                            const entity = document.getElementById('magic-circle-entity');
+                            const plane = document.getElementById('magic-circle-plane');
+                            
+                            console.log('Magic circle detailed check:', {
+                                entityVisible: entity ? entity.getAttribute('visible') : 'Entity not found',
+                                planeExists: !!plane,
+                                planeVisible: plane ? plane.getAttribute('visible') : 'Plane not found',
+                                planePosition: plane ? plane.getAttribute('position') : 'N/A',
+                                textureLoaded: plane ? !!plane.getAttribute('src') : 'N/A'
+                            });
+                        }, 500);
+                    } else {
+                        console.error('ARManager not found!');
+                    }
+                };
+                
+                window.toggleMagicCircle = function() {
+                    console.log('=== TOGGLE MAGIC CIRCLE ===');
+                    const entity = document.getElementById('magic-circle-entity');
+                    if (entity) {
+                        const isVisible = entity.getAttribute('visible') === 'true';
+                        entity.setAttribute('visible', !isVisible);
+                        console.log(`Magic circle ${!isVisible ? 'shown' : 'hidden'}`);
+                    } else {
+                        console.error('Magic circle entity not found!');
+                    }
+                };
+                
+                console.log('Debug functions ready:', {
+                    testDebugObject: typeof window.testDebugObject,
+                    testSummon: typeof window.testSummon,
+                    checkStatus: typeof window.checkStatus,
+                    testFallback: typeof window.testFallback,
+                    testMagicCircle: typeof window.testMagicCircle,
+                    toggleMagicCircle: typeof window.toggleMagicCircle
+                });
+                
+            }, 1000); // 1秒待ってから設定
+        });
+    </script>
 </body>
 </html>

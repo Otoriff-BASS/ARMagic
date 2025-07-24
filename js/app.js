@@ -21,9 +21,12 @@ class ARMagicApp {
     initialize() {
         console.log('ARMagicApp initializing...');
         
+        // A-Frameの背景を強制的に透明化
+        this.forceTransparentBackground();
+        
         // ARマネージャーを初期化
         this.arManager = new ARManager();
-        window.arManager = this.arManager;
+        window.arManager = this.arManager;  // グローバルに設定
         
         // タッチハンドラーを初期化
         this.touchHandler = new TouchHandler();
@@ -37,6 +40,34 @@ class ARMagicApp {
         
         this.isInitialized = true;
         console.log('ARMagicApp initialized successfully');
+        
+        // グローバル変数の確認
+        console.log('Global AR objects set:', {
+            arManager: !!window.arManager,
+            touchHandler: !!window.touchHandler,
+            arManagerType: typeof window.arManager
+        });
+    }
+    
+    forceTransparentBackground() {
+        // A-Frameシーンの読み込み完了を待つ
+        const scene = document.querySelector('a-scene');
+        if (scene) {
+            scene.addEventListener('loaded', () => {
+                console.log('A-Frame scene loaded, setting transparent background...');
+                
+                // キャンバス要素を取得して背景を透明化（レンダリングは維持）
+                const canvas = scene.canvas;
+                if (canvas) {
+                    // CSSでのみ背景を制御
+                    canvas.style.background = 'transparent';
+                    console.log('Canvas background style set to transparent');
+                }
+                
+                // レンダラーのクリアカラーは設定しない（デフォルトのままにする）
+                console.log('Background transparency applied without affecting rendering');
+            });
+        }
     }
     
     setupReplayButton() {
@@ -222,7 +253,7 @@ window.debugAR = () => {
         // 魔法陣とマーカーの状態確認
         console.log('Magic Circle Element:', document.getElementById('magic-circle-entity'));
         console.log('Magic Circle Texture:', document.getElementById('magic-circle-texture'));
-        console.log('Marker Element:', document.getElementById('marker-1'));
+        console.log('Marker Element:', document.getElementById('hiro-marker'));
     }
     
     // テスト用の召喚（マーカーが認識されている場合のみ実行）
@@ -236,4 +267,60 @@ window.debugAR = () => {
     } else {
         console.log('Marker not visible - cannot test summon');  // マーカーが認識されていない場合の警告
     }
+    
+    // デバッグ用: マニュアルテスト関数をグローバルに公開
+    console.log('Setting up global debug functions...');
 };
+
+// グローバル関数を確実に定義（スコープ外で定義）
+window.testDebugObject = function() {
+    console.log('testDebugObject called');
+    if (window.arManager) {
+        console.log('ARManager found, testing debug object...');
+        console.log('Marker status:', window.arManager.isMarkerVisible);
+        window.arManager.showDebugObject();
+    } else {
+        console.error('ARManager not available');
+        console.log('Available objects:', Object.keys(window).filter(key => key.includes('ar') || key.includes('AR')));
+    }
+};
+
+window.testSummon = function(modelId = 'model-a') {
+    console.log('testSummon called with:', modelId);
+    if (window.arManager) {
+        console.log('ARManager found, testing summon...');
+        console.log('Marker status:', window.arManager.isMarkerVisible);
+        window.arManager.showSummonedObject(modelId);
+    } else {
+        console.error('ARManager not available');
+        console.log('Available objects:', Object.keys(window).filter(key => key.includes('ar') || key.includes('AR')));
+    }
+};
+
+window.checkStatus = function() {
+    console.log('checkStatus called');
+    if (window.arManager) {
+        console.log('Current AR Status:', window.arManager.getSceneStatus());
+        const obj = document.getElementById('summoned-object');
+        if (obj) {
+            console.log('Summoned Object Status:', {
+                position: obj.getAttribute('position'),
+                scale: obj.getAttribute('scale'),
+                visible: obj.getAttribute('visible'),
+                innerHTML: obj.innerHTML,
+                parentElement: obj.parentElement ? obj.parentElement.tagName : 'No parent'
+            });
+        } else {
+            console.error('Summoned object element not found!');
+        }
+    } else {
+        console.error('ARManager not available');
+    }
+};
+
+// 初期化完了の確認
+console.log('Global debug functions defined:', {
+    testDebugObject: typeof window.testDebugObject,
+    testSummon: typeof window.testSummon,
+    checkStatus: typeof window.checkStatus
+});
