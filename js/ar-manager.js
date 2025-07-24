@@ -155,7 +155,7 @@ class ARManager {
         // マーカー座標系での位置を明示的に設定
         this.summonedObject.setAttribute('position', '0 1 0');
         this.summonedObject.setAttribute('rotation', '0 0 0');
-        this.summonedObject.setAttribute('scale', '0.5 0.5 0.5'); // 最初から見えるサイズに設定
+        this.summonedObject.setAttribute('scale', '1.2 1.2 1.2'); // オブジェクトサイズを大きく設定
         this.summonedObject.setAttribute('visible', 'true');  // 最初に表示状態に変更
         
         console.log('Object properties set:');
@@ -175,8 +175,8 @@ class ARManager {
             // アニメーション開始
             this.summonedObject.setAttribute('animation__appear', {
                 property: 'scale',
-                from: '0.1 0.1 0.1',
-                to: '1 1 1',
+                from: '0.2 0.2 0.2',
+                to: '1.5 1.5 1.5',
                 dur: 1000,
                 easing: 'easeOutBounce'
             });
@@ -242,7 +242,7 @@ class ARManager {
         
         // マーカー座標系での位置を設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1 1 1');
+        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
         this.summonedObject.setAttribute('visible', 'true');
         
         console.log('Attributes set - adding debug shapes...');
@@ -296,7 +296,7 @@ class ARManager {
         
         // 位置設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1 1 1');
+        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
         this.summonedObject.setAttribute('visible', 'true');
         
         // モデルIDに応じた色とテキストを設定
