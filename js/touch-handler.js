@@ -2,27 +2,27 @@
 
 class TouchHandler {
     constructor() {
-        this.touchStartTime = 0;
-        this.touchEndTime = 0;
-        this.isTouching = false;
-        this.isMarkerVisible = false;
+        this.touchStartTime = 0;        // タッチ開始時刻（ミリ秒単位のタイムスタンプ）
+        this.touchEndTime = 0;          // タッチ終了時刻（ミリ秒単位のタイムスタンプ）
+        this.isTouching = false;        // 現在タッチ中かどうかのフラグ（二重操作防止のため）
+        this.isMarkerVisible = false;   // マーカーが認識されているかのフラグ（ARマネージャーから設定される）
         
         this.initEventListeners();
     }
     
     initEventListeners() {
-        // タッチイベント
-        document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
-        document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+        // タッチイベント（スマートフォン・タブレット用のタッチ操作を検知）
+        document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });  // タッチ開始イベント
+        document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });      // タッチ終了イベント
         
-        // マウスイベント（PC用）
-        document.addEventListener('mousedown', this.onTouchStart.bind(this));
-        document.addEventListener('mouseup', this.onTouchEnd.bind(this));
+        // マウスイベント（PC用のマウスクリック操作を検知）
+        document.addEventListener('mousedown', this.onTouchStart.bind(this));   // マウスボタン押下イベント
+        document.addEventListener('mouseup', this.onTouchEnd.bind(this));       // マウスボタン離上イベント
         
-        // タッチ操作の無効化を防ぐ
+        // タッチ操作の無効化を防ぐ（タッチ中のスクロールやズームを無効化）
         document.addEventListener('touchmove', (e) => {
             if (this.isTouching) {
-                e.preventDefault();
+                e.preventDefault();  // デフォルトのタッチ動作をキャンセル（スクロール防止）
             }
         }, { passive: false });
     }
@@ -59,16 +59,16 @@ class TouchHandler {
         
         event.preventDefault();
         
-        this.isTouching = false;
-        this.touchEndTime = Date.now();
+        this.isTouching = false;                                    // タッチ状態フラグをfalseに設定
+        this.touchEndTime = Date.now();                            // タッチ終了時刻を記録（現在時刻をミリ秒で取得）
         
-        const duration = this.touchEndTime - this.touchStartTime;
+        const duration = this.touchEndTime - this.touchStartTime;  // タッチ継続時間を計算（終了時刻 - 開始時刻）
         
-        // タッチフィードバック解除
+        // タッチフィードバック解除（視覚的なタッチ効果を削除）
         this.hideTouchFeedback();
         
-        // ステータス非表示
-        const statusElement = document.getElementById('status');
+        // ステータス非表示（「魔法を込めています...」メッセージを隠す）
+        const statusElement = document.getElementById('status');    // ステータス表示用のDOM要素を取得
         statusElement.style.display = 'none';
         
         console.log('Touch ended. Duration:', duration, 'ms');
@@ -78,41 +78,41 @@ class TouchHandler {
     }
     
     processSummoning(duration) {
-        // 時間に基づいて召喚するオブジェクトを決定
-        const T1 = 200, T2 = 500, T3 = 1000, T4 = 2000;
+        // 時間に基づいて召喚するオブジェクトを決定（タッチ継続時間の閾値を設定）
+        const T1 = 200, T2 = 500, T3 = 1000, T4 = 2000;  // T1～T4は時間の境界値（ミリ秒）
         
-        let modelToShow = '';
-        let summonType = '';
+        let modelToShow = '';   // 表示する3Dモデルのasset ID
+        let summonType = '';    // ユーザーに表示する精霊の名前
         
         if (duration < T1) {
-            modelToShow = 'model-a';
+            modelToShow = 'model-a';    // 最速タッチ（0-200ms）：稲妻の精霊
             summonType = '稲妻の精霊';
         } else if (duration < T2) {
-            modelToShow = 'model-b';
+            modelToShow = 'model-b';    // 高速タッチ（200-500ms）：炎の精霊
             summonType = '炎の精霊';
         } else if (duration < T3) {
-            modelToShow = 'model-c';
+            modelToShow = 'model-c';    // 中速タッチ（500-1000ms）：水の精霊
             summonType = '水の精霊';
         } else if (duration < T4) {
-            modelToShow = 'model-d';
+            modelToShow = 'model-d';    // 低速タッチ（1000-2000ms）：土の精霊
             summonType = '土の精霊';
         } else {
-            modelToShow = 'model-e';
+            modelToShow = 'model-e';    // 最遅タッチ（2000ms+）：古の守護者
             summonType = '古の守護者';
         }
         
-        // ARマネージャーに召喚を指示
+        // ARマネージャーに召喚を指示（選択された3Dモデルを表示）
         if (window.arManager) {
             window.arManager.showSummonedObject(modelToShow);
         }
         
-        // 結果表示
+        // 結果表示（ユーザーに召喚成功を通知）
         this.showResult(summonType, duration);
     }
     
     showResult(summonType, duration) {
-        const resultElement = document.getElementById('result');
-        const replayBtn = document.getElementById('replay-btn');
+        const resultElement = document.getElementById('result');    // 結果表示用のDOM要素を取得
+        const replayBtn = document.getElementById('replay-btn');    // リプレイボタンのDOM要素を取得
         
         resultElement.innerHTML = `
             <h3>🎉 召喚成功！</h3>
@@ -120,17 +120,17 @@ class TouchHandler {
             <p>タッチ時間: ${duration}ms</p>
         `;
         
-        resultElement.style.display = 'block';
-        resultElement.classList.add('fade-in');
+        resultElement.style.display = 'block';      // 結果テキストを表示状態にする
+        resultElement.classList.add('fade-in');     // フェードインアニメーションを適用
         
-        // リプレイボタン表示
+        // リプレイボタン表示（1秒後に表示してユーザーが結果を確認する時間を与える）
         setTimeout(() => {
-            replayBtn.style.display = 'block';
-            replayBtn.classList.add('fade-in');
+            replayBtn.style.display = 'block';       // リプレイボタンを表示状態にする
+            replayBtn.classList.add('fade-in');      // フェードインアニメーションを適用
         }, 1000);
         
-        // 指示テキスト非表示
-        const instructionsElement = document.getElementById('instructions');
+        // 指示テキスト非表示（結果表示中は操作方法を隠す）
+        const instructionsElement = document.getElementById('instructions');  // 指示テキストのDOM要素を取得
         instructionsElement.style.display = 'none';
     }
     
@@ -145,52 +145,54 @@ class TouchHandler {
     }
     
     reset() {
-        // 状態リセット
-        this.isTouching = false;
-        this.touchStartTime = 0;
-        this.touchEndTime = 0;
+        // 状態リセット（タッチ操作に関する全ての変数を初期値に戻す）
+        this.isTouching = false;        // タッチ中フラグをfalseに
+        this.touchStartTime = 0;        // タッチ開始時間をリセット
+        this.touchEndTime = 0;          // タッチ終了時間をリセット
         
-        // UI要素リセット
-        const statusElement = document.getElementById('status');
-        const resultElement = document.getElementById('result');
-        const replayBtn = document.getElementById('replay-btn');
-        const instructionsElement = document.getElementById('instructions');
+        // UI要素リセット（画面上の表示要素を初期状態に戻す）
+        const statusElement = document.getElementById('status');            // ステータス表示要素
+        const resultElement = document.getElementById('result');            // 結果表示要素
+        const replayBtn = document.getElementById('replay-btn');            // リプレイボタン要素
+        const instructionsElement = document.getElementById('instructions'); // 指示テキスト要素
         
-        statusElement.style.display = 'none';
-        resultElement.style.display = 'none';
-        replayBtn.style.display = 'none';
-        instructionsElement.style.display = 'block';
+        statusElement.style.display = 'none';      // ステータスを非表示
+        resultElement.style.display = 'none';      // 結果を非表示
+        replayBtn.style.display = 'none';          // リプレイボタンを非表示
+        instructionsElement.style.display = 'block'; // 指示テキストを表示
         
-        // クラスリセット
+        // クラスリセット（CSSアニメーションクラスを削除）
         [statusElement, resultElement, replayBtn, instructionsElement].forEach(el => {
-            el.classList.remove('fade-in');
+            el.classList.remove('fade-in');  // フェードインアニメーションクラスを削除
         });
         
-        // ARオブジェクトリセット
+        // ARオブジェクトリセット（現在表示されている召喚オブジェクトを非表示）
         if (window.arManager) {
             window.arManager.hideSummonedObject();
         }
     }
     
     setMarkerVisible(visible) {
-        this.isMarkerVisible = visible;
+        this.isMarkerVisible = visible;  // マーカー認識状態を更新（ARマネージャーから呼び出される）
         
         if (visible) {
-            const instructionsElement = document.getElementById('instructions');
+            // マーカー認識時の指示テキスト（操作可能状態を示す）
+            const instructionsElement = document.getElementById('instructions');  // 指示テキスト要素を取得
             instructionsElement.innerHTML = `
                 <h2>魔法陣召喚体験</h2>
                 <p>✨ マーカーを認識しました！</p>
                 <p>✋ 画面を指でぐるぐる回そう！</p>
             `;
-            instructionsElement.classList.add('pulse');
+            instructionsElement.classList.add('pulse');  // 点滅アニメーションを追加（注意喚起のため）
         } else {
-            const instructionsElement = document.getElementById('instructions');
+            // マーカー未認識時の指示テキスト（カメラをマーカーに向けるよう促す）
+            const instructionsElement = document.getElementById('instructions');  // 指示テキスト要素を取得
             instructionsElement.innerHTML = `
                 <h2>魔法陣召喚体験</h2>
                 <p>📱 マーカーにカメラを向けてください</p>
                 <p>✋ 画面を指でぐるぐる回そう！</p>
             `;
-            instructionsElement.classList.remove('pulse');
+            instructionsElement.classList.remove('pulse');  // 点滅アニメーションを削除
         }
     }
 }
