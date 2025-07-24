@@ -155,7 +155,7 @@ class ARManager {
         // マーカー座標系での位置を明示的に設定
         this.summonedObject.setAttribute('position', '0 1 0');
         this.summonedObject.setAttribute('rotation', '0 0 0');
-        this.summonedObject.setAttribute('scale', '0.5 0.5 0.5'); // 最初から見えるサイズに設定
+        this.summonedObject.setAttribute('scale', '1.2 1.2 1.2'); // オブジェクトサイズを大きく設定
         this.summonedObject.setAttribute('visible', 'true');  // 最初に表示状態に変更
         
         console.log('Object properties set:');
@@ -175,8 +175,8 @@ class ARManager {
             // アニメーション開始
             this.summonedObject.setAttribute('animation__appear', {
                 property: 'scale',
-                from: '0.1 0.1 0.1',
-                to: '1 1 1',
+                from: '0.2 0.2 0.2',
+                to: '1.5 1.5 1.5',
                 dur: 1000,
                 easing: 'easeOutBounce'
             });
@@ -242,7 +242,7 @@ class ARManager {
         
         // マーカー座標系での位置を設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1 1 1');
+        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
         this.summonedObject.setAttribute('visible', 'true');
         
         console.log('Attributes set - adding debug shapes...');
@@ -296,19 +296,19 @@ class ARManager {
         
         // 位置設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1 1 1');
+        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
         this.summonedObject.setAttribute('visible', 'true');
         
         // モデルIDに応じた色とテキストを設定
         const modelInfo = {
-            'model-a': { color: '#ff4444', name: '稲妻の精霊' },
-            'model-b': { color: '#ff8800', name: '炎の精霊' },
-            'model-c': { color: '#4488ff', name: '水の精霊' },
-            'model-d': { color: '#88aa44', name: '土の精霊' },
-            'model-e': { color: '#aa44aa', name: '古の守護者' }
+            'model-a': { color: '#ff4444', name: 'オブジェクトA' },
+            'model-b': { color: '#ff8800', name: 'オブジェクトB' },
+            'model-c': { color: '#4488ff', name: 'オブジェクトC' },
+            'model-d': { color: '#88aa44', name: 'オブジェクトD' },
+            'model-e': { color: '#aa44aa', name: 'オブジェクトE' }
         };
         
-        const info = modelInfo[modelId] || { color: '#ffffff', name: '未知の精霊' };
+        const info = modelInfo[modelId] || { color: '#ffffff', name: '未知のオブジェクト' };
         
         // 代替表示オブジェクト
         this.summonedObject.innerHTML = `
