@@ -61,24 +61,25 @@
             raycaster="objects: .clickable"
             cursor="fuse: false; rayOrigin: mouse;">
             
-            <!-- 魔法陣（複合オブジェクト） -->
+            <!-- 魔法陣（Planeオブジェクト - マーカーから浮かせて表示） -->
             <a-entity id="magic-circle-entity">
-                <!-- メインの魔法陣球体 -->
-                <a-sphere 
-                    id="magic-circle-sphere"
+                <!-- メインの魔法陣Plane -->
+                <a-plane 
+                    id="magic-circle-plane"
                     src="#magic-circle-texture"
-                    radius="1.2"
-                    position="0 0.05 0" 
-                    scale="1 0.1 1"
+                    width="2.4" 
+                    height="2.4"
+                    position="0 0.3 0" 
+                    rotation="-90 0 0"
                     material="transparent: true; alphaTest: 0.1; opacity: 0.9; side: double"
-                    animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
-                    animation__pulse="property: scale; to: 1.1 0.15 1.1; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
-                </a-sphere>
+                    animation__rotate="property: rotation; to: -90 360 0; loop: true; dur: 8000; easing: linear"
+                    animation__float="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 4000; easing: easeInOutSine">
+                </a-plane>
                 
-                <!-- 外側のリング -->
+                <!-- 外側のリング（装飾） -->
                 <a-ring 
                     color="#FFD700" 
-                    position="0 0.08 0" 
+                    position="0 0.35 0" 
                     radius-inner="1.5" 
                     radius-outer="1.7" 
                     rotation="-90 0 0"
@@ -86,10 +87,10 @@
                     animation__spin="property: rotation; to: -90 360 0; loop: true; dur: 12000; easing: linear">
                 </a-ring>
                 
-                <!-- 内側のリング -->
+                <!-- 内側のリング（装飾） -->
                 <a-ring 
                     color="#8A2BE2" 
-                    position="0 0.06 0" 
+                    position="0 0.25 0" 
                     radius-inner="0.8" 
                     radius-outer="1.0" 
                     rotation="-90 0 0"
@@ -189,8 +190,34 @@
                     if (window.arManager) {
                         console.log('Showing magic circle...');
                         window.arManager.showMagicCircle();
+                        
+                        // 追加の詳細チェック
+                        setTimeout(() => {
+                            const entity = document.getElementById('magic-circle-entity');
+                            const plane = document.getElementById('magic-circle-plane');
+                            
+                            console.log('Magic circle detailed check:', {
+                                entityVisible: entity ? entity.getAttribute('visible') : 'Entity not found',
+                                planeExists: !!plane,
+                                planeVisible: plane ? plane.getAttribute('visible') : 'Plane not found',
+                                planePosition: plane ? plane.getAttribute('position') : 'N/A',
+                                textureLoaded: plane ? !!plane.getAttribute('src') : 'N/A'
+                            });
+                        }, 500);
                     } else {
                         console.error('ARManager not found!');
+                    }
+                };
+                
+                window.toggleMagicCircle = function() {
+                    console.log('=== TOGGLE MAGIC CIRCLE ===');
+                    const entity = document.getElementById('magic-circle-entity');
+                    if (entity) {
+                        const isVisible = entity.getAttribute('visible') === 'true';
+                        entity.setAttribute('visible', !isVisible);
+                        console.log(`Magic circle ${!isVisible ? 'shown' : 'hidden'}`);
+                    } else {
+                        console.error('Magic circle entity not found!');
                     }
                 };
                 
@@ -199,7 +226,8 @@
                     testSummon: typeof window.testSummon,
                     checkStatus: typeof window.checkStatus,
                     testFallback: typeof window.testFallback,
-                    testMagicCircle: typeof window.testMagicCircle
+                    testMagicCircle: typeof window.testMagicCircle,
+                    toggleMagicCircle: typeof window.toggleMagicCircle
                 });
                 
             }, 1000); // 1秒待ってから設定

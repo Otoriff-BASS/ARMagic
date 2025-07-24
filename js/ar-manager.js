@@ -90,19 +90,30 @@ class ARManager {
     showMagicCircle() {
         if (this.magicCircle) {
             this.magicCircle.setAttribute('visible', 'true');
-            console.log('Magic circle appeared! (Flattened sphere with rings)');
+            console.log('Magic circle appeared! (Floating plane with decorative rings)');
             
             // 魔法陣の構成要素をログ出力
-            const sphere = this.magicCircle.querySelector('#magic-circle-sphere');
+            const plane = this.magicCircle.querySelector('#magic-circle-plane');
             const outerRing = this.magicCircle.querySelector('a-ring[color="#FFD700"]');
             const innerRing = this.magicCircle.querySelector('a-ring[color="#8A2BE2"]');
             
             console.log('Magic circle components:', {
-                sphere: !!sphere,
+                plane: !!plane,
+                planePosition: plane ? plane.getAttribute('position') : 'N/A',
                 outerRing: !!outerRing,
                 innerRing: !!innerRing,
                 totalChildren: this.magicCircle.children.length
             });
+            
+            if (plane) {
+                console.log('Plane details:', {
+                    width: plane.getAttribute('width'),
+                    height: plane.getAttribute('height'),
+                    position: plane.getAttribute('position'),
+                    rotation: plane.getAttribute('rotation'),
+                    visible: plane.getAttribute('visible')
+                });
+            }
         } else {
             console.error('Magic circle entity not found!');
         }
