@@ -39,6 +39,13 @@ class TouchHandler {
             this.isTouching = true;
             this.touchStartTime = Date.now();
             
+            // 新しい召喚開始時に前の結果表示をクリア
+            const resultElement = document.getElementById('result');
+            if (resultElement) {
+                resultElement.style.display = 'none';
+                resultElement.classList.remove('fade-in', 'fade-out');
+            }
+            
             // タッチ開始のフィードバック
             this.showTouchFeedback();
             
@@ -123,7 +130,6 @@ class TouchHandler {
     
     showResult(summonType, duration) {
         const resultElement = document.getElementById('result');    // 結果表示用のDOM要素を取得
-        const replayBtn = document.getElementById('replay-btn');    // リプレイボタンのDOM要素を取得
         
         // DOM要素の存在チェック（エラーを投げずに警告のみ）
         if (!resultElement) {
@@ -131,34 +137,43 @@ class TouchHandler {
             return; // エラーを投げずに処理を終了
         }
         
-        if (!replayBtn) {
-            console.warn('Replay button not found - skipping replay button display');
-            // replayBtn がなくても結果表示は続行
-        }
-        
         try {
             resultElement.innerHTML = `
                 <h3>召喚成功！</h3>
                 <p><strong>${summonType}</strong> が現れました！</p>
                 <p>タッチ時間: ${duration}ms</p>
+                <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">再度タッチして次の召喚を行えます</p>
             `;
             
             resultElement.style.display = 'block';      // 結果テキストを表示状態にする
             resultElement.classList.add('fade-in');     // フェードインアニメーションを適用
             
-            // リプレイボタン表示（ボタンが存在する場合のみ）
-            if (replayBtn) {
-                setTimeout(() => {
-                    replayBtn.style.display = 'block';       // リプレイボタンを表示状態にする
-                    replayBtn.classList.add('fade-in');      // フェードインアニメーションを適用
-                }, 1000);
+            // リプレイボタンは表示しない（連続召喚のため）
+            // if (replayBtn) { ... } ← この部分を削除
+            
+            // 指示テキストを連続召喚用に更新（非表示にしない）
+            const instructionsElement = document.getElementById('instructions');
+            if (instructionsElement) {
+                instructionsElement.innerHTML = `
+                    <h2>AR召喚</h2>
+                    <p>マーカーを認識しました！</p>
+                    <p>再度タッチして次の召喚を行えます</p>
+                `;
+                instructionsElement.style.display = 'block'; // 表示を維持
+                instructionsElement.classList.add('pulse');  // 点滅アニメーションを維持
             }
             
-            // 指示テキスト非表示（結果表示中は操作方法を隠す）
-            const instructionsElement = document.getElementById('instructions');  // 指示テキストのDOM要素を取得
-            if (instructionsElement) {
-                instructionsElement.style.display = 'none';
-            }
+            // 3秒後に結果表示を自動的にフェードアウト
+            setTimeout(() => {
+                if (resultElement) {
+                    resultElement.classList.add('fade-out');
+                    setTimeout(() => {
+                        resultElement.style.display = 'none';
+                        resultElement.classList.remove('fade-in', 'fade-out');
+                    }, 500);
+                }
+            }, 3000);
+            
         } catch (error) {
             console.warn('Error updating result display:', error);
             // UI更新エラーでも処理は継続（召喚は成功しているため）
@@ -210,17 +225,15 @@ class TouchHandler {
         // UI要素リセット（画面上の表示要素を初期状態に戻す）
         const statusElement = document.getElementById('status');            // ステータス表示要素
         const resultElement = document.getElementById('result');            // 結果表示要素
-        const replayBtn = document.getElementById('replay-btn');            // リプレイボタン要素
         const instructionsElement = document.getElementById('instructions'); // 指示テキスト要素
         
         if (statusElement) statusElement.style.display = 'none';      // ステータスを非表示
         if (resultElement) resultElement.style.display = 'none';      // 結果を非表示
-        if (replayBtn) replayBtn.style.display = 'none';          // リプレイボタンを非表示
         if (instructionsElement) instructionsElement.style.display = 'block'; // 指示テキストを表示
         
         // クラスリセット（CSSアニメーションクラスを削除）
-        [statusElement, resultElement, replayBtn, instructionsElement].forEach(el => {
-            if (el) el.classList.remove('fade-in');  // フェードインアニメーションクラスを削除
+        [statusElement, resultElement, instructionsElement].forEach(el => {
+            if (el) el.classList.remove('fade-in', 'fade-out');  // フェードアニメーションクラスを削除
         });
         
         // ARオブジェクトリセット（現在表示されている召喚オブジェクトを非表示）
@@ -240,11 +253,11 @@ class TouchHandler {
         }
         
         if (visible) {
-            // マーカー認識時の指示テキスト（操作可能状態を示す）
+            // マーカー認識時の指示テキスト（連続召喚対応）
             instructionsElement.innerHTML = `
                 <h2>AR召喚</h2>
                 <p>マーカーを認識しました！</p>
-                <p>画面を指でタッチしよう！</p>
+                <p>画面をタッチして召喚しよう！</p>
             `;
             instructionsElement.classList.add('pulse');  // 点滅アニメーションを追加（注意喚起のため）
         } else {
@@ -252,7 +265,7 @@ class TouchHandler {
             instructionsElement.innerHTML = `
                 <h2>AR召喚</h2>
                 <p>マーカーにカメラを向けてください</p>
-                <p>画面を指でタッチしよう！</p>
+                <p>画面をタッチして召喚しよう！</p>
             `;
             instructionsElement.classList.remove('pulse');  // 点滅アニメーションを削除
         }
