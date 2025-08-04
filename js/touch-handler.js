@@ -155,7 +155,7 @@ class TouchHandler {
             const instructionsElement = document.getElementById('instructions');
             if (instructionsElement) {
                 instructionsElement.innerHTML = `
-                    <h2>AR召喚</h2>
+                    <h2>AR魔法陣</h2>
                     <p>マーカーを認識しました！</p>
                     <p>再度タッチして次の召喚を行えます</p>
                 `;
@@ -255,7 +255,7 @@ class TouchHandler {
         if (visible) {
             // マーカー認識時の指示テキスト（連続召喚対応）
             instructionsElement.innerHTML = `
-                <h2>AR召喚</h2>
+                <h2>AR魔法陣</h2>
                 <p>マーカーを認識しました！</p>
                 <p>画面をタッチして召喚しよう！</p>
             `;
@@ -263,7 +263,7 @@ class TouchHandler {
         } else {
             // マーカー未認識時の指示テキスト（カメラをマーカーに向けるよう促す）
             instructionsElement.innerHTML = `
-                <h2>AR召喚</h2>
+                <h2>AR魔法陣</h2>
                 <p>マーカーにカメラを向けてください</p>
                 <p>画面をタッチして召喚しよう！</p>
             `;
