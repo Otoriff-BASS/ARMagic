@@ -179,7 +179,6 @@ class TouchHandler {
     
     processSummoning(duration) {
         let modelToShow = '';
-        let summonType = '';
         
         // 軌跡の長さを計算
         const pathLength = this.calculatePathLength();
@@ -200,15 +199,12 @@ class TouchHandler {
             if (duration < 8000 && pathLength >= 800) {
                 // 高速 + 長い軌跡 = 最高品質
                 modelToShow = 'model-a';
-                summonType = '精霊召喚';
             } else if (pathLength >= 500 || duration < 12000) {
                 // 中程度の軌跡 または 適度な速度
                 modelToShow = 'model-b';
-                summonType = '魔法生物召喚';
             } else {
                 // 基本的な軌跡
                 modelToShow = 'model-c';
-                summonType = '召喚獣召喚';
             }
         } else {
             // 召喚失敗 - より詳細なフィードバック
@@ -219,7 +215,7 @@ class TouchHandler {
                 failureReason = `もっと大きくぐるぐる描いてください！(範囲: ${Math.round(drawingArea)}px²)`;
             }
             
-            this.showResult('召喚失敗', duration, failureReason);
+            this.showResult(duration, failureReason);
             return;
         }
         
@@ -238,10 +234,10 @@ class TouchHandler {
         }
         
         // 結果表示（軌跡の長さ情報を含める）
-        this.showResult(summonType, duration, `軌跡の長さ: ${Math.round(pathLength)}px`);
+        this.showResult(duration, `軌跡の長さ: ${Math.round(pathLength)}px`);
     }
     
-    showResult(summonType, duration, additionalInfo = '') {
+    showResult(duration, additionalInfo = '') {
         const resultElement = document.getElementById('result');    // 結果表示用のDOM要素を取得
         
         // DOM要素の存在チェック（エラーを投げずに警告のみ）
@@ -251,9 +247,9 @@ class TouchHandler {
         }
         
         try {
+            const isFailure = additionalInfo.includes('もっと');
             resultElement.innerHTML = `
-                <h3>${summonType.includes('失敗') ? '召喚失敗' : '召喚成功！'}</h3>
-                <p><strong>${summonType}</strong></p>
+                <h3>${isFailure ? '召喚失敗' : '召喚成功！'}</h3>
                 <p>描画時間: ${Math.round(duration / 1000)}秒</p>
                 ${additionalInfo ? `<p style="margin-top: 10px; font-style: italic;">${additionalInfo}</p>` : ''}
                 <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">再度ぐるぐる描いて次の召喚を行えます</p>
