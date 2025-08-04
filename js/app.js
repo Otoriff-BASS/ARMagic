@@ -216,12 +216,12 @@ class ARMagicApp {
         
         // エラー表示（ユーザーに分かりやすい形でエラー状況を通知）
         const statusElement = document.getElementById('status');  // ステータス表示用のDOM要素を取得
-        if (statusElement) {
+        /*if (statusElement) {
             statusElement.innerHTML = '⚠️ エラーが発生しました。ページを再読み込みしてください。';
             statusElement.style.display = 'block';          // 要素を表示状態にする
             statusElement.style.background = 'rgba(255, 0, 0, 0.9)';  // 背景色を赤に変更してエラーを強調
             statusElement.style.color = 'white';             // 文字色を白に設定（赤背景に対する視認性向上）
-        }
+        }*/
     }
     
     // デバッグ用メソッド（開発時にアプリの内部状態を確認するため）
