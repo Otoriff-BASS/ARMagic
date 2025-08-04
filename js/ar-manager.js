@@ -152,10 +152,21 @@ class ARManager {
         this.summonedObject.removeAttribute('animation__appear');
         this.summonedObject.innerHTML = ''; // 既存の子要素をクリア
         
+        // モデルIDに応じて適切なスケールを設定
+        const modelScales = {
+            'ayu-model': '3.0 3.0 3.0',        // あゆ - かなり大きく
+            'gozen-model': '1.5 1.5 1.5',      // 御膳 - 少し大きく
+            'okonomiyaki-model': '3.3 3.3 3.3', // お好み焼き - かなり大きく
+            'oyakodon-model': '3.0 3.0 3.0',   // 親子丼 - かなり大きく
+            'softcream-model': '3.5 3.5 3.5'   // ソフトクリーム - かなり大きく
+        };
+        
+        const scale = modelScales[modelId] || '2.0 2.0 2.0'; // デフォルトサイズ
+        
         // マーカー座標系での位置を明示的に設定
         this.summonedObject.setAttribute('position', '0 1 0');
         this.summonedObject.setAttribute('rotation', '0 0 0');
-        this.summonedObject.setAttribute('scale', '1.2 1.2 1.2'); // オブジェクトサイズを大きく設定
+        this.summonedObject.setAttribute('scale', scale); // モデル別のサイズを設定
         this.summonedObject.setAttribute('visible', 'true');  // 最初に表示状態に変更
         
         console.log('Object properties set:');
@@ -172,11 +183,14 @@ class ARManager {
             console.log(`✓ Model loaded successfully: ${modelId}`);
             console.log('Model loaded - starting animation...');
             
-            // アニメーション開始
+            // モデル別の最終スケールを取得
+            const finalScale = modelScales[modelId] || '2.0 2.0 2.0';
+            
+            // アニメーション開始（モデル別の最終サイズに調整）
             this.summonedObject.setAttribute('animation__appear', {
                 property: 'scale',
                 from: '0.2 0.2 0.2',
-                to: '1.5 1.5 1.5',
+                to: finalScale,
                 dur: 1000,
                 easing: 'easeOutBounce'
             });
@@ -242,7 +256,7 @@ class ARManager {
         
         // マーカー座標系での位置を設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
+        this.summonedObject.setAttribute('scale', '2.5 2.5 2.5'); // デバッグオブジェクトも見やすくするため大きく
         this.summonedObject.setAttribute('visible', 'true');
         
         console.log('Attributes set - adding debug shapes...');
@@ -294,9 +308,20 @@ class ARManager {
         this.summonedObject.removeAttribute('gltf-model');
         this.summonedObject.removeAttribute('animation__appear');
         
+        // モデルIDに応じて適切なスケールを設定（フォールバック用）
+        const modelScales = {
+            'ayu-model': '3.0 3.0 3.0',        // あゆ - かなり大きく
+            'gozen-model': '1.5 1.5 1.5',      // 御膳 - 少し大きく
+            'okonomiyaki-model': '3.3 3.3 3.3', // お好み焼き - かなり大きく
+            'oyakodon-model': '3.0 3.0 3.0',   // 親子丼 - かなり大きく
+            'softcream-model': '3.5 3.5 3.5'   // ソフトクリーム - かなり大きく
+        };
+        
+        const scale = modelScales[modelId] || '2.0 2.0 2.0'; // デフォルトサイズ
+        
         // 位置設定
         this.summonedObject.setAttribute('position', '0 1 0');
-        this.summonedObject.setAttribute('scale', '1.3 1.3 1.3');
+        this.summonedObject.setAttribute('scale', scale);
         this.summonedObject.setAttribute('visible', 'true');
         
         // モデルIDに応じた色とテキストを設定
