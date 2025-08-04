@@ -191,16 +191,22 @@ class TouchHandler {
         
         // 描画距離（軌跡の長さ）のみで判定
         if (pathLength >= 300) {
-            // 軌跡の長さに応じてモデルを選択
-            if (pathLength >= 800 && duration < 8000) {
-                // 長い軌跡 + 高速 = 最高品質
-                modelToShow = 'model-a';
+            // 軌跡の長さに応じてモデルを選択（5つのモデルを使用）
+            if (pathLength >= 1200) {
+                // 最長軌跡 = ソフトクリーム
+                modelToShow = 'softcream-model';
+            } else if (pathLength >= 900) {
+                // 長い軌跡 = 親子丼
+                modelToShow = 'oyakodon-model';
+            } else if (pathLength >= 650) {
+                // 中程度の軌跡 = お好み焼き
+                modelToShow = 'okonomiyaki-model';
             } else if (pathLength >= 500) {
-                // 中程度の軌跡 = 中品質
-                modelToShow = 'model-b';
+                // やや短い軌跡 = 御膳
+                modelToShow = 'gozen-model';
             } else {
-                // 基本的な軌跡 = 基本品質
-                modelToShow = 'model-c';
+                // 基本的な軌跡 = あゆ
+                modelToShow = 'ayu-model';
             }
         } else {
             // 召喚失敗 - 軌跡が短すぎる

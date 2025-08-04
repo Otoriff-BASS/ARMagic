@@ -43,12 +43,12 @@
         <a-assets>
             <!-- 魔法陣テクスチャ - PNG画像を使用 -->
             <img id="magic-circle-texture" src="assets/textures/magic-circle-placeholder.png" crossorigin="anonymous">
-            <!-- 召喚オブジェクトモデル - より確実な読み込み設定 -->
-            <a-asset-item id="model-a" src="assets/models/model-a.glb" response-type="arraybuffer"></a-asset-item>
-            <a-asset-item id="model-b" src="assets/models/model-b.glb" response-type="arraybuffer"></a-asset-item>
-            <a-asset-item id="model-c" src="assets/models/model-c.glb" response-type="arraybuffer"></a-asset-item>
-            <a-asset-item id="model-d" src="assets/models/model-d.glb" response-type="arraybuffer"></a-asset-item>
-            <a-asset-item id="model-e" src="assets/models/model-e.glb" response-type="arraybuffer"></a-asset-item>
+            <!-- 召喚オブジェクトモデル - 実際のモデルファイルを使用 -->
+            <a-asset-item id="ayu-model" src="assets/models/ayu.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="gozen-model" src="assets/models/gozen.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="okonomiyaki-model" src="assets/models/okonomiyaki.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="oyakodon-model" src="assets/models/oyakodon.glb" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="softcream-model" src="assets/models/softcream.glb" response-type="arraybuffer"></a-asset-item>
         </a-assets>
 
         <!-- Camera -->
@@ -139,7 +139,7 @@
                     }
                 };
                 
-                window.testSummon = function(modelId = 'model-a') {
+                window.testSummon = function(modelId = 'ayu-model') {
                     console.log('=== SUMMON TEST ===');
                     console.log('Model ID:', modelId);
                     console.log('ARManager available:', !!window.arManager);
@@ -175,7 +175,7 @@
                     }
                 };
                 
-                window.testFallback = function(modelId = 'model-a') {
+                window.testFallback = function(modelId = 'ayu-model') {
                     console.log('=== FALLBACK TEST ===');
                     if (window.arManager) {
                         console.log('Testing fallback for:', modelId);
