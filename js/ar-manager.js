@@ -301,14 +301,14 @@ class ARManager {
         
         // モデルIDに応じた色とテキストを設定
         const modelInfo = {
-            'model-a': { color: '#ff4444', name: 'オブジェクトA' },
-            'model-b': { color: '#ff8800', name: 'オブジェクトB' },
-            'model-c': { color: '#4488ff', name: 'オブジェクトC' },
-            'model-d': { color: '#88aa44', name: 'オブジェクトD' },
-            'model-e': { color: '#aa44aa', name: 'オブジェクトE' }
+            'ayu-model': { color: '#ff4444', name: 'あゆ' },
+            'gozen-model': { color: '#ff8800', name: '御膳' },
+            'okonomiyaki-model': { color: '#4488ff', name: 'お好み焼き' },
+            'oyakodon-model': { color: '#88aa44', name: '親子丼' },
+            'softcream-model': { color: '#aa44aa', name: 'ソフトクリーム' }
         };
         
-        const info = modelInfo[modelId] || { color: '#ffffff', name: '未知のオブジェクト' };
+        const info = modelInfo[modelId] || { color: '#ffffff', name: '未知のモデル' };
         
         // 代替表示オブジェクト
         this.summonedObject.innerHTML = `
