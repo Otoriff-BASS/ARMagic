@@ -182,38 +182,29 @@ class TouchHandler {
         
         // 軌跡の長さを計算
         const pathLength = this.calculatePathLength();
-        const boundingBox = this.getBoundingBox();
-        const drawingArea = boundingBox.width * boundingBox.height;
         
         console.log('Path analysis:', {
             pathLength: pathLength,
             duration: duration,
-            boundingBox: boundingBox,
-            drawingArea: drawingArea,
             pointCount: this.touchPath.length
         });
         
-        // より緩い判定基準に変更
-        if (pathLength >= 300 && drawingArea >= 2000) {
-            // 十分な軌跡長 + 大きな描画範囲
-            if (duration < 8000 && pathLength >= 800) {
-                // 高速 + 長い軌跡 = 最高品質
+        // 描画距離（軌跡の長さ）のみで判定
+        if (pathLength >= 300) {
+            // 軌跡の長さに応じてモデルを選択
+            if (pathLength >= 800 && duration < 8000) {
+                // 長い軌跡 + 高速 = 最高品質
                 modelToShow = 'model-a';
-            } else if (pathLength >= 500 || duration < 12000) {
-                // 中程度の軌跡 または 適度な速度
+            } else if (pathLength >= 500) {
+                // 中程度の軌跡 = 中品質
                 modelToShow = 'model-b';
             } else {
-                // 基本的な軌跡
+                // 基本的な軌跡 = 基本品質
                 modelToShow = 'model-c';
             }
         } else {
-            // 召喚失敗 - より詳細なフィードバック
-            let failureReason = '';
-            if (pathLength < 300) {
-                failureReason = `もっと長くぐるぐる描いてください！(現在: ${Math.round(pathLength)}px)`;
-            } else if (drawingArea < 2000) {
-                failureReason = `もっと大きくぐるぐる描いてください！(範囲: ${Math.round(drawingArea)}px²)`;
-            }
+            // 召喚失敗 - 軌跡が短すぎる
+            const failureReason = `もっと長くぐるぐる描いてください！(現在: ${Math.round(pathLength)}px, 必要: 300px以上)`;
             
             this.showResult(duration, failureReason);
             return;
@@ -389,23 +380,44 @@ class TouchHandler {
     // === 軌跡解析メソッド群 ===
     
     calculatePathLength() {
-        if (this.touchPath.length < 2) return 0;
+        if (this.touchPath.length < 2) {
+            console.log('Path too short:', this.touchPath.length, 'points');
+            return 0;
+        }
         
         let totalLength = 0;
+        
+        console.log('Calculating path length for', this.touchPath.length, 'points');
+        console.log('First point:', this.touchPath[0]);
+        console.log('Last point:', this.touchPath[this.touchPath.length - 1]);
         
         for (let i = 1; i < this.touchPath.length; i++) {
             const prev = this.touchPath[i - 1];
             const curr = this.touchPath[i];
             
-            // 2点間の距離を計算
-            const distance = Math.sqrt(
-                Math.pow(curr.x - prev.x, 2) + 
-                Math.pow(curr.y - prev.y, 2)
-            );
-            
-            totalLength += distance;
+            // 座標の妥当性チェック
+            if (prev && curr && 
+                typeof prev.x === 'number' && typeof prev.y === 'number' &&
+                typeof curr.x === 'number' && typeof curr.y === 'number') {
+                
+                // 2点間の距離を計算
+                const distance = Math.sqrt(
+                    Math.pow(curr.x - prev.x, 2) + 
+                    Math.pow(curr.y - prev.y, 2)
+                );
+                
+                totalLength += distance;
+                
+                // 最初の数回だけデバッグ出力
+                if (i <= 3) {
+                    console.log(`Point ${i}: prev(${prev.x}, ${prev.y}) -> curr(${curr.x}, ${curr.y}) = distance: ${distance}`);
+                }
+            } else {
+                console.warn(`Invalid point data at index ${i}:`, { prev, curr });
+            }
         }
         
+        console.log('Total calculated length:', totalLength);
         return totalLength;
     }
     
@@ -455,6 +467,7 @@ class TouchHandler {
         console.log('Drawing area:', stats.drawingArea, 'px²');
         console.log('Bounding box:', stats.boundingBox);
         console.log('Average speed:', stats.avgSpeed, 'px/sec');
+        console.log('Touch path sample:', this.touchPath.slice(0, 3));
         console.log('======================');
         return stats;
     }
