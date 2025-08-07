@@ -17,7 +17,8 @@
         <div id="instructions" class="instruction-text">
             <h2>AR魔法陣</h2>
             <p>マーカーにカメラを向けてください</p>
-            <p>魔法陣が現れたら画面をタッチ！</p>
+            <p>画面をぐるぐるかき混ぜて召喚しよう！</p>
+            <p style="font-size: 14px; opacity: 0.8;">円を5回転以上描くと召喚成功！</p>
         </div>
         <div id="status" class="status-text" style="display: none;"></div>
         <div id="result" class="result-text" style="display: none;"></div>
@@ -221,13 +222,88 @@
                     }
                 };
                 
+                window.testNaNDebug = function() {
+                    console.log('=== NaN DEBUG TEST ===');
+                    if (window.touchHandler && window.touchHandler.touchPath.length > 0) {
+                        console.log('Current path length:', window.touchHandler.touchPath.length);
+                        console.log('Sample points:', window.touchHandler.touchPath.slice(0, 10));
+                        
+                        // 各点の妥当性をチェック
+                        const invalidPoints = window.touchHandler.touchPath.filter((point, index) => {
+                            const isInvalid = !point || 
+                                typeof point.x !== 'number' || 
+                                typeof point.y !== 'number' || 
+                                isNaN(point.x) || 
+                                isNaN(point.y) ||
+                                !isFinite(point.x) || 
+                                !isFinite(point.y);
+                            if (isInvalid) {
+                                console.log(`Invalid point at index ${index}:`, point);
+                            }
+                            return isInvalid;
+                        });
+                        
+                        console.log('Invalid points found:', invalidPoints.length);
+                        
+                        // 中心点計算テスト
+                        try {
+                            const center = window.touchHandler.calculateCenter();
+                            console.log('Center calculation result:', center);
+                        } catch (error) {
+                            console.error('Center calculation error:', error);
+                        }
+                        
+                        // 回転数計算テスト
+                        try {
+                            const revolutions = window.touchHandler.calculateRevolutions();
+                            console.log('Revolution calculation result:', revolutions);
+                        } catch (error) {
+                            console.error('Revolution calculation error:', error);
+                        }
+                        
+                        // 詳細デバッグ
+                        try {
+                            window.touchHandler.debugCircleAnalysis();
+                        } catch (error) {
+                            console.error('Debug circle analysis error:', error);
+                        }
+                        
+                    } else {
+                        console.log('No touch path data available. Draw something first!');
+                    }
+                };
+                
+                window.testScoreDebug = function() {
+                    console.log('=== SCORE DEBUG TEST ===');
+                    if (window.touchHandler && window.touchHandler.touchPath.length > 0) {
+                        console.log('Current path length:', window.touchHandler.touchPath.length);
+                        
+                        // スコア計算テスト
+                        try {
+                            const scoreResult = window.touchHandler.calculateTotalScore();
+                            console.log('Score calculation result:', scoreResult);
+                            
+                            // 詳細スコアデバッグ
+                            window.touchHandler.debugScore();
+                            
+                        } catch (error) {
+                            console.error('Score calculation error:', error);
+                        }
+                        
+                    } else {
+                        console.log('No touch path data available. Draw something first!');
+                    }
+                };
+                
                 console.log('Debug functions ready:', {
                     testDebugObject: typeof window.testDebugObject,
                     testSummon: typeof window.testSummon,
                     checkStatus: typeof window.checkStatus,
                     testFallback: typeof window.testFallback,
                     testMagicCircle: typeof window.testMagicCircle,
-                    toggleMagicCircle: typeof window.toggleMagicCircle
+                    toggleMagicCircle: typeof window.toggleMagicCircle,
+                    testNaNDebug: typeof window.testNaNDebug,
+                    testScoreDebug: typeof window.testScoreDebug
                 });
                 
             }, 1000); // 1秒待ってから設定
