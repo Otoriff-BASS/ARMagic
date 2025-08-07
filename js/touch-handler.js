@@ -17,6 +17,11 @@ class TouchHandler {
         this.completedRevolutions = 0;  // 完了した回転数
         this.pathCenter = null;         // 軌跡の中心点
         
+        // 時間計測用プロパティ
+        this.drawingStartTime = null;   // 描画開始時間
+        this.drawingEndTime = null;     // 描画終了時間
+        this.drawingDuration = 0;       // 描画時間（ミリ秒）
+        
         this.initEventListeners();
     }
     
@@ -53,6 +58,9 @@ class TouchHandler {
             
             // 軌跡の初期化
             this.touchPath = [];
+            
+            // 描画開始時間を記録
+            this.drawingStartTime = Date.now();
             
             // マウスとタッチの両方に対応
             let clientX, clientY;
@@ -167,6 +175,10 @@ class TouchHandler {
         this.isTouching = false;                                    // タッチ状態フラグをfalseに設定
         this.touchEndTime = Date.now();                            // タッチ終了時刻を記録（現在時刻をミリ秒で取得）
         
+        // 描画終了時間を記録
+        this.drawingEndTime = Date.now();
+        this.drawingDuration = this.drawingEndTime - this.drawingStartTime;
+        
         const duration = this.touchEndTime - this.touchStartTime;  // タッチ継続時間を計算（終了時刻 - 開始時刻）
         
         // タッチフィードバック解除（無効化のため削除）
@@ -193,53 +205,69 @@ class TouchHandler {
     processSummoning(duration) {
         let modelToShow = '';
         
-        // 円認識分析を実行
-        const circleAnalysis = this.analyzeCircles();
-        const revolutions = this.calculateRevolutions();
+        // スコア計算
+        const scoreResult = this.calculateTotalScore();
         
-        console.log('Circle-based summoning analysis:', {
-            revolutions: revolutions,
-            averageQuality: circleAnalysis.averageQuality,
-            circleCount: circleAnalysis.totalCircles
-        });
+        console.log('Score-based summoning analysis:', scoreResult);
         
-        // 5回転未満の場合は失敗
-        if (revolutions < 5) {
-            const failureReason = `5回転必要です！(現在: ${revolutions.toFixed(1)}回転)`;
-            this.showResult(duration, failureReason);
+        if (scoreResult.totalScore === 0) {
+            // 基本条件未達成
+            const revolutions = this.calculateRevolutions();
+            if (revolutions < 5) {
+                const failureReason = `5回転必要です！(現在: ${revolutions.toFixed(1)}回転)`;
+                this.showResult(duration, failureReason);
+            } else {
+                const failureReason = `もっと綺麗な円を描いてください！`;
+                this.showResult(duration, failureReason);
+            }
             return;
         }
         
-        // 円の精度に基づいてオブジェクトを選択
-        const avgQuality = circleAnalysis.averageQuality;
+        // スコアによるオブジェクト分岐
+        const score = scoreResult.totalScore;
+        let rank = '';
         
-        if (avgQuality >= 85) {
-            // 最高精度 = ソフトクリーム
+        if (score >= 300) {
             modelToShow = 'softcream-model';
-        } else if (avgQuality >= 70) {
-            // 高精度 = 親子丼
+            rank = 'レジェンド級';
+        } else if (score >= 250) {
+            modelToShow = 'softcream-model';
+            rank = 'マスター級';
+        } else if (score >= 200) {
             modelToShow = 'oyakodon-model';
-        } else if (avgQuality >= 55) {
-            // 中精度 = お好み焼き
+            rank = 'エキスパート級';
+        } else if (score >= 160) {
+            modelToShow = 'oyakodon-model';
+            rank = '上級者';
+        } else if (score >= 120) {
             modelToShow = 'okonomiyaki-model';
-        } else if (avgQuality >= 40) {
-            // 低精度 = 御膳
+            rank = '中級者';
+        } else if (score >= 90) {
+            modelToShow = 'okonomiyaki-model';
+            rank = '初級者';
+        } else if (score >= 60) {
             modelToShow = 'gozen-model';
-        } else if (avgQuality >= 25) {
-            // 最低精度 = あゆ
-            modelToShow = 'ayu-model';
+            rank = '見習い';
         } else {
-            // 精度が低すぎる場合は失敗
-            const failureReason = `もっと綺麗な円を描いてください！(精度: ${avgQuality}%)`;
-            this.showResult(duration, failureReason);
-            return;
+            modelToShow = 'ayu-model';
+            rank = '練習中';
+        }
+        
+        // 特別なコンボボーナス表示
+        let specialTitle = '';
+        if (scoreResult.breakdown.bonus >= 50) {
+            specialTitle = '【パーフェクトマスター】';
+        } else if (scoreResult.breakdown.bonus >= 40) {
+            specialTitle = '【スピードマスター】';
+        } else if (scoreResult.breakdown.bonus >= 25) {
+            specialTitle = '【職人の技】';
         }
         
         // ARマネージャーに召喚を指示（エラーはログのみ出力）
         if (window.arManager && typeof window.arManager.showSummonedObject === 'function') {
             try {
                 window.arManager.showSummonedObject(modelToShow);
-                console.log('Summoned object:', modelToShow, 'Quality:', avgQuality);
+                console.log('Summoned:', modelToShow, 'Score:', score, 'Rank:', rank);
             } catch (error) {
                 console.error('Failed to show summoned object:', error);
                 // エラーがあってもUI表示は継続
@@ -249,8 +277,15 @@ class TouchHandler {
             // エラーがあってもUI表示は継続
         }
         
-        // 結果表示（円の精度情報を含める）
-        this.showResult(duration, `回転数: ${revolutions.toFixed(1)}回, 円の精度: ${avgQuality}%`);
+        // 詳細な結果表示
+        const breakdown = scoreResult.breakdown;
+        const resultInfo = `${specialTitle} ${rank} (${score}点)
+時間: ${breakdown.details.drawingTime.toFixed(1)}秒 (${breakdown.time}pt)
+精度: ${breakdown.details.avgQuality}% (${breakdown.quality}pt)
+回転: ${breakdown.details.revolutions.toFixed(1)}回 (${breakdown.revolution}pt)${breakdown.bonus > 0 ? `
+ボーナス: +${breakdown.bonus}pt` : ''}`.trim();
+        
+        this.showResult(duration, resultInfo);
     }
     
     showResult(duration, additionalInfo = '') {
@@ -318,6 +353,11 @@ class TouchHandler {
         this.circleStartPoint = null;
         this.completedRevolutions = 0;
         this.pathCenter = null;
+        
+        // 時間計測リセット
+        this.drawingStartTime = null;
+        this.drawingEndTime = null;
+        this.drawingDuration = 0;
         
         // UI要素リセット（画面上の表示要素を初期状態に戻す）
         const statusElement = document.getElementById('status');            // ステータス表示要素
@@ -724,6 +764,120 @@ class TouchHandler {
         
         const finalRevolutions = Math.abs(totalAngle) / (2 * Math.PI);
         console.log('Final revolutions:', finalRevolutions);
+    }
+    
+    // === スコア計算システム ===
+    
+    // 総合スコア計算
+    calculateTotalScore() {
+        const revolutions = this.calculateRevolutions();
+        const circleAnalysis = this.analyzeCircles();
+        const drawingTimeMs = this.drawingDuration;
+        const drawingTimeSec = drawingTimeMs / 1000;
+        
+        // 基本条件チェック
+        if (revolutions < 5 || circleAnalysis.averageQuality < 25) {
+            return { totalScore: 0, breakdown: null };
+        }
+        
+        // 各要素のスコア計算
+        const revolutionScore = this.calculateRevolutionScore(revolutions);
+        const qualityScore = this.calculateQualityScore(circleAnalysis.averageQuality);
+        const timeScore = this.calculateTimeScore(drawingTimeSec);
+        const bonusScore = this.calculateBonusScore(revolutions, circleAnalysis.averageQuality, drawingTimeSec);
+        
+        const totalScore = revolutionScore + qualityScore + timeScore + bonusScore;
+        
+        return {
+            totalScore: Math.round(totalScore),
+            breakdown: {
+                revolution: revolutionScore,
+                quality: qualityScore,
+                time: timeScore,
+                bonus: bonusScore,
+                details: {
+                    revolutions: revolutions,
+                    avgQuality: circleAnalysis.averageQuality,
+                    drawingTime: drawingTimeSec
+                }
+            }
+        };
+    }
+    
+    // 回転数スコア（基礎点）
+    calculateRevolutionScore(revolutions) {
+        // 5回転で基礎点、それ以上はボーナス
+        const baseScore = Math.min(revolutions, 10) * 10; // 最大100点
+        return Math.round(baseScore);
+    }
+    
+    // 精度スコア（品質評価）
+    calculateQualityScore(quality) {
+        // 品質をそのまま点数化（0-100点）
+        return Math.round(quality);
+    }
+    
+    // 時間スコア（速度評価）
+    calculateTimeScore(timeSec) {
+        let timeScore = 0;
+        
+        if (timeSec <= 2) {
+            timeScore = 100; // 超高速ボーナス
+        } else if (timeSec <= 4) {
+            timeScore = 80;  // 高速
+        } else if (timeSec <= 6) {
+            timeScore = 60;  // 標準
+        } else if (timeSec <= 10) {
+            timeScore = 40;  // やや低速
+        } else if (timeSec <= 15) {
+            timeScore = 20;  // 低速
+        } else {
+            timeScore = 10;  // 超低速
+        }
+        
+        return timeScore;
+    }
+    
+    // ボーナススコア（コンボ評価）
+    calculateBonusScore(revolutions, quality, timeSec) {
+        let bonus = 0;
+        
+        // パーフェクトコンボ（高精度 + 高速）
+        if (quality >= 90 && timeSec <= 4) {
+            bonus += 50; // パーフェクトマスター
+        }
+        
+        // スピードマスター（そこそこ精度 + 超高速）
+        if (quality >= 70 && timeSec <= 2) {
+            bonus += 40; // スピードマスター
+        }
+        
+        // 職人コンボ（超高精度 + 適度な時間）
+        if (quality >= 95 && timeSec >= 4 && timeSec <= 8) {
+            bonus += 45; // 職人の技
+        }
+        
+        // 回転マスター（多回転ボーナス）
+        if (revolutions >= 8) {
+            bonus += Math.min((revolutions - 8) * 5, 25); // 最大25点追加
+        }
+        
+        return bonus;
+    }
+    
+    // デバッグ用スコア詳細表示
+    debugScore() {
+        const scoreResult = this.calculateTotalScore();
+        console.log('=== SCORE BREAKDOWN ===');
+        console.log('Total Score:', scoreResult.totalScore);
+        
+        if (scoreResult.breakdown) {
+            console.log('Revolution Score:', scoreResult.breakdown.revolution);
+            console.log('Quality Score:', scoreResult.breakdown.quality);
+            console.log('Time Score:', scoreResult.breakdown.time);
+            console.log('Bonus Score:', scoreResult.breakdown.bonus);
+            console.log('Details:', scoreResult.breakdown.details);
+        }
     }
     
     // === 軌跡解析メソッド群 ===

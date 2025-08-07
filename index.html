@@ -273,6 +273,28 @@
                     }
                 };
                 
+                window.testScoreDebug = function() {
+                    console.log('=== SCORE DEBUG TEST ===');
+                    if (window.touchHandler && window.touchHandler.touchPath.length > 0) {
+                        console.log('Current path length:', window.touchHandler.touchPath.length);
+                        
+                        // スコア計算テスト
+                        try {
+                            const scoreResult = window.touchHandler.calculateTotalScore();
+                            console.log('Score calculation result:', scoreResult);
+                            
+                            // 詳細スコアデバッグ
+                            window.touchHandler.debugScore();
+                            
+                        } catch (error) {
+                            console.error('Score calculation error:', error);
+                        }
+                        
+                    } else {
+                        console.log('No touch path data available. Draw something first!');
+                    }
+                };
+                
                 console.log('Debug functions ready:', {
                     testDebugObject: typeof window.testDebugObject,
                     testSummon: typeof window.testSummon,
@@ -280,7 +302,8 @@
                     testFallback: typeof window.testFallback,
                     testMagicCircle: typeof window.testMagicCircle,
                     toggleMagicCircle: typeof window.toggleMagicCircle,
-                    testNaNDebug: typeof window.testNaNDebug
+                    testNaNDebug: typeof window.testNaNDebug,
+                    testScoreDebug: typeof window.testScoreDebug
                 });
                 
             }, 1000); // 1秒待ってから設定
