@@ -234,10 +234,10 @@ class TouchHandler {
             modelToShow = 'softcream-model';
             rank = 'マスター級';
         } else if (score >= 200) {
-            modelToShow = 'oyakodon-model';
+            modelToShow = 'gozen-model';
             rank = 'エキスパート級';
         } else if (score >= 160) {
-            modelToShow = 'oyakodon-model';
+            modelToShow = 'gozen-model';
             rank = '上級者';
         } else if (score >= 120) {
             modelToShow = 'okonomiyaki-model';
@@ -246,7 +246,7 @@ class TouchHandler {
             modelToShow = 'okonomiyaki-model';
             rank = '初級者';
         } else if (score >= 60) {
-            modelToShow = 'gozen-model';
+            modelToShow = 'oyakodon-model';
             rank = '見習い';
         } else {
             modelToShow = 'ayu-model';
