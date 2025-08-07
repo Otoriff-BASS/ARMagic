@@ -225,32 +225,19 @@ class TouchHandler {
         
         // スコアによるオブジェクト分岐
         const score = scoreResult.totalScore;
-        let rank = '';
         
-        if (score >= 300) {
+        if (score >= 220) {
             modelToShow = 'softcream-model';
-            rank = 'レジェンド級';
-        } else if (score >= 250) {
-            modelToShow = 'softcream-model';
-            rank = 'マスター級';
-        } else if (score >= 200) {
-            modelToShow = 'gozen-model';
-            rank = 'エキスパート級';
         } else if (score >= 160) {
             modelToShow = 'gozen-model';
-            rank = '上級者';
         } else if (score >= 120) {
             modelToShow = 'okonomiyaki-model';
-            rank = '中級者';
         } else if (score >= 90) {
             modelToShow = 'okonomiyaki-model';
-            rank = '初級者';
         } else if (score >= 60) {
             modelToShow = 'oyakodon-model';
-            rank = '見習い';
         } else {
             modelToShow = 'ayu-model';
-            rank = '練習中';
         }
         
         // 特別なコンボボーナス表示
@@ -267,7 +254,7 @@ class TouchHandler {
         if (window.arManager && typeof window.arManager.showSummonedObject === 'function') {
             try {
                 window.arManager.showSummonedObject(modelToShow);
-                console.log('Summoned:', modelToShow, 'Score:', score, 'Rank:', rank);
+                console.log('Summoned:', modelToShow, 'Score:', score);
             } catch (error) {
                 console.error('Failed to show summoned object:', error);
                 // エラーがあってもUI表示は継続
@@ -279,7 +266,7 @@ class TouchHandler {
         
         // 詳細な結果表示
         const breakdown = scoreResult.breakdown;
-        const resultInfo = `${specialTitle} ${rank} (${score}点)
+        const resultInfo = `${specialTitle} (${score}点)
 時間: ${breakdown.details.drawingTime.toFixed(1)}秒 (${breakdown.time}pt)
 精度: ${breakdown.details.avgQuality}% (${breakdown.quality}pt)
 回転: ${breakdown.details.revolutions.toFixed(1)}回 (${breakdown.revolution}pt)${breakdown.bonus > 0 ? `
