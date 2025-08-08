@@ -23,6 +23,7 @@ class TouchHandler {
         this.drawingDuration = 0;       // 描画時間（ミリ秒）
         
         this.initEventListeners();
+        this.initParticleSystem();
     }
     
     initEventListeners() {
@@ -42,6 +43,16 @@ class TouchHandler {
                 e.preventDefault();  // デフォルトのタッチ動作をキャンセル（スクロール防止）
             }
         }, { passive: false });
+    }
+    
+    initParticleSystem() {
+        // パーティクル用キャンバスを作成
+        this.particleCanvas = document.createElement('canvas');
+        this.particleCanvas.id = 'particle-canvas';
+        document.body.appendChild(this.particleCanvas);
+        
+        // パーティクルシステムを初期化
+        this.particleSystem = new ParticleSystem(this.particleCanvas);
     }
     
     onTouchStart(event) {
@@ -141,6 +152,13 @@ class TouchHandler {
         
         this.touchPath.push(currentPoint);
         
+        // パーティクル生成（マーカーが表示されている時のみ）
+        if (this.isMarkerVisible && this.particleSystem) {
+            const currentQuality = this.getCurrentQuality();
+            const currentRevolutions = this.calculateRevolutions();
+            this.particleSystem.addParticle(clientX, clientY, currentQuality, currentRevolutions);
+        }
+        
         // リアルタイムで回転数を表示（十分なポイントが蓄積されてから）
         if (this.touchPath.length > 20) {
             try {
@@ -189,6 +207,13 @@ class TouchHandler {
             statusElement.style.display = 'none';
         } else {
             console.warn('Status element not found during touch end');
+        }
+        
+        // タッチ終了時にパーティクル生成を停止し、既存のパーティクルを徐々にフェードアウト
+        if (this.particleSystem) {
+            setTimeout(() => {
+                this.particleSystem.clear();
+            }, 2000); // 2秒後にクリア
         }
         
         console.log('Touch ended. Duration:', duration, 'ms');
@@ -325,6 +350,45 @@ class TouchHandler {
         }
     }
     
+    // 現在の品質を簡易計算（リアルタイム用）
+    getCurrentQuality() {
+        if (this.touchPath.length < 5) return 50;
+        
+        // 最後の10点で簡易品質計算
+        const recentPoints = this.touchPath.slice(-10);
+        if (recentPoints.length < 3) return 50;
+        
+        try {
+            // 簡易的な中心計算
+            const sumX = recentPoints.reduce((sum, p) => sum + p.x, 0);
+            const sumY = recentPoints.reduce((sum, p) => sum + p.y, 0);
+            const centerX = sumX / recentPoints.length;
+            const centerY = sumY / recentPoints.length;
+            
+            // 中心からの距離の標準偏差を計算（簡易版）
+            const distances = recentPoints.map(p => 
+                Math.sqrt((p.x - centerX) * (p.x - centerX) + (p.y - centerY) * (p.y - centerY))
+            );
+            const avgDistance = distances.reduce((sum, d) => sum + d, 0) / distances.length;
+            const variance = distances.reduce((sum, d) => sum + (d - avgDistance) * (d - avgDistance), 0) / distances.length;
+            const stdDev = Math.sqrt(variance);
+            
+            // 品質スコア計算（0-100）
+            const maxDeviation = avgDistance * 0.3;
+            let quality = maxDeviation > 0 ? Math.max(0, 100 - (stdDev / maxDeviation) * 100) : 50;
+            
+            // 回転数に応じてボーナス
+            const revolutions = this.calculateRevolutions();
+            if (revolutions > 3) {
+                quality = Math.min(100, quality + 10);
+            }
+            
+            return Math.max(20, Math.min(95, quality));
+        } catch (error) {
+            return 50; // エラー時はデフォルト値
+        }
+    }
+    
     reset() {
         // 状態リセット（タッチ操作に関する全ての変数を初期値に戻す）
         this.isTouching = false;        // タッチ中フラグをfalseに
@@ -363,6 +427,11 @@ class TouchHandler {
         // ARオブジェクトリセット（現在表示されている召喚オブジェクトを非表示）
         if (window.arManager) {
             window.arManager.hideSummonedObject();
+        }
+        
+        // パーティクルシステムをクリア
+        if (this.particleSystem) {
+            this.particleSystem.clear();
         }
         
         console.log('Touch state reset - ready for next swirl drawing');

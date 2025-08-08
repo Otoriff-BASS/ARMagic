@@ -10,6 +10,8 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <!-- AR.js - より安定したバージョンに変更 -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- 円形マスクシェーダー -->
+    <script src="js/circular-mask-shader.js"></script>
 </head>
 <body>
     <!-- UI Overlay - カメラを邪魔しないように調整 -->
@@ -64,7 +66,7 @@
             
             <!-- 魔法陣（Planeオブジェクト - マーカーから浮かせて表示） -->
             <a-entity id="magic-circle-entity">
-                <!-- メインの魔法陣Plane -->
+                <!-- メインの魔法陣Plane - 円形マスクコンポーネント使用 -->
                 <a-plane 
                     id="magic-circle-plane"
                     src="#magic-circle-texture"
@@ -72,7 +74,8 @@
                     height="1.5"
                     position="0 0.3 0" 
                     rotation="-90 0 0"
-                    material="transparent: true; alphaTest: 0.1; opacity: 0.9; side: double"
+                    material="transparent: true; opacity: 0.9; side: double"
+                    circular-mask="radius: 0.48"
                     animation__rotate="property: rotation; to: -90 360 0; loop: true; dur: 8000; easing: linear"
                     animation__float="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 4000; easing: easeInOutSine">
                 </a-plane>
@@ -88,10 +91,10 @@
                     animation__spin="property: rotation; to: -90 360 0; loop: true; dur: 12000; easing: linear">
                 </a-ring>
                 
-                <!-- 内側のリング（装飾） -->
+                <!-- 内側のリング（装飾） - テクスチャの裏側に表示 -->
                 <a-ring 
                     color="#8A2BE2" 
-                    position="0 0.25 0" 
+                    position="0 0.2 0" 
                     radius-inner="0.5" 
                     radius-outer="0.7" 
                     rotation="-90 0 0"
@@ -112,6 +115,7 @@
     </a-scene>
 
     <!-- JavaScript -->
+    <script src="js/particle-system.js"></script>
     <script src="js/touch-handler.js"></script>
     <script src="js/ar-manager.js"></script>
     <script src="js/app.js"></script>
